@@ -57,7 +57,7 @@ docker ps [可选参数]  #当前正在运行的程序
 
 # 可选参数
 -a 						#当前正在运行的程序+历史运行过的容器
--n=?          #显示最近创建的n个容器
+-n=?          			#显示最近创建的n个容器
 -q						#只显示容器的编号
 ```
 
@@ -305,7 +305,6 @@ docker exec -it 8db468560791 /bin/bash
 #方式二：
 docker attach 容器id  #进入容器正在执行的终端，不会启动新的进程
 
-
 ```
 
 **从容器内拷贝文件到主机上**:`cp`
@@ -456,7 +455,7 @@ docker run -it -v 主机目录：容器内目录
 
 ```
 #下载镜像
-docker pull mysql
+docker pull mysql:5.7
 #运行容器,
 # -e 环境配置
 # -v 卷挂载
@@ -469,6 +468,8 @@ docker run -d -p 3307:3306 -v /home/mysql/conf:/etc/mysql/conf.d
 **即使将容器删除，同步的数据也不会丢失**，这就实现了容器持久化功能
 
 ## 9. DockerFile
+
+
 
 ## 10. Docker网络
 
