@@ -468,7 +468,95 @@ docker run -d -p 3307:3306 -v /home/mysql/conf:/etc/mysql/conf.d
 
 **即使将容器删除，同步的数据也不会丢失**，这就实现了容器持久化功能
 
+### 8.3 具名挂载和匿名挂载
+
+```
+# 匿名挂载
+-v 容器内路径
+# 例子
+docker run -d -P --name nginx01 -v /etc/ngnix nginx
+# 查看所有的volume的情况
+docker volume ls
+# 
+DRIVER              VOLUME NAME
+local               b002d6731edf1879a3754568496421799c24cf72ddce7511fa146db5facda31e
+
+
+# 具名挂载
+-v 卷名:容器内路径
+# 例子
+docker run -d -P --name nginx02 -v juming-nginx:/etc/nginx nginx
+# 
+docker volume ls
+# 
+DRIVER              VOLUME NAME
+local               juming-nginx
+# 查看一下这个卷
+docker volume inspect juming-nginx
+[
+    {
+        "Driver": "local",
+        "Labels": null,
+        //这是宿主机的路径
+        "Mountpoint": "/var/lib/docker/volumes/juming-nginx/_data",
+        "Name": "juming-nginx",
+        "Options": {},
+        "Scope": "local"
+    }
+]
+```
+
+**所有docker容器内的卷，没有指定目录的情况下都是在`/var/lib/docker/volumes/xxx/_data`**;
+
+我们通过具名挂载可以方便的找到我们的卷，大多数情况下使用`具名挂载`
+
+```
+-v 容器内路径              #匿名挂载
+-v 卷名:容器内路径         #具名挂载
+-v /宿主机路径:容器内路径.  #指定路径挂载
+```
+
+**拓展**
+
+```
+# -v 容器内路径:ro(rw)改变读写权限
+ro readonly  #只读
+rw readwrite #读写
+docker run -d -P --name nginx02 -v juming-nginx:/etc/nginx:ro nginx
+docker run -d -P --name nginx02 -v juming-nginx:/etc/nginx:rw nginx
+
+#ro：这个路径只能通过宿主机改变,容器内部无法操作。默认rw
+```
+
 ## 9. DockerFile
+
+### 9.1 概念
+
+```
+# 创建一个dockerfile文件
+# 文件内容 
+# 指令(大写):参数,即镜像的一层
+FROM centos
+VOLUME ["volume01", "volume02"]  #匿名挂载
+CMD echo "-------------end--------------"
+CMD /bin/bash
+# 通过dockerfile文件构建镜像
+docker build -f dockerfile1 -t hhp/centos:1.0 .
+# 查看镜像
+[root@localhost hhp_docker_test_volume]# docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+hhp/centos          1.0                 e7296d566925        28 seconds ago      209 MB
+```
+
+### 9.2 数据卷容器
+
+```
+# 运行容器docker01
+docker run -it --name docker01 hhp/centos:1.0
+# 容器docker02挂载容器docker01上，--volumes-from实现容器间的数据共享
+docker run -it --name docker02 --volumes-from docker01 hhp/centos:1.0
+# 通过inspect可以看出，两个容器挂载在同一个目录下
+```
 
 ## 10. Docker网络
 
