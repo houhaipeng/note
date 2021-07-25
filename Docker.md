@@ -558,5 +558,172 @@ docker run -it --name docker02 --volumes-from docker01 hhp/centos:1.0
 # 通过inspect可以看出，两个容器挂载在同一个目录下
 ```
 
+### 9.3 DockerFile构建过程
+
+```
+#dockerfile构建镜像的步骤
+1. 编写一个dockerfile文件
+2. docker build构建成为一个镜像
+3. docker run 运行镜像
+4. docker push发布镜像(DockerHub,阿里云镜像仓库)
+```
+
+`dockerfile指令集`
+
+```
+#dockerfile指令集
+FROM:指定基础镜像
+MAINTAINER:指定维护者信息
+RUN:镜像构建的时候需要运行的命令
+ADD:
+WORKDIR:镜像的工作目录
+VOLUME:挂载的目录
+EXPOSE:暴露端口
+CMD/ENTRYPOINT:指定这个容器启动的时候要运行的命令(CMD只有最后一个会生效,ENTRYPOINT追加命令)
+ONBUILD:
+COPY:类似ADD,将文件拷贝到镜像中.
+ENV:构建的时候设置环境变量
+```
+
+### 9.4 实战1：构建自己的centos
+
+```
+#1. 编写配置文件,取名mydockerfile
+FROM centos
+MAINTAINER hhp<1439801553@qq.com>
+
+ENV MYPATH /usr/local
+#docker run的时候，直接进入这个目录
+#之前的centos默认是根目录(/)
+WORKDIR $MYPATH
+
+RUN yum -y install vim
+RUN yum -y install net-tools
+
+EXPOSE 80
+
+CMD echo $MYPATH
+CMD echo "------end-----"
+CMD /bin/bash
+
+--------------------------
+#2. 通过文件构建镜像,取名mycentos:0.1
+docker build -f mydockerfile -t mycentos:0.1 .
+--------------------------
+#3. 测试运行
+docker run -it mycentos:0.1
+--------------------------
+#4. 查看镜像构建历史,我们平时拿到一个镜像，可以研究一下他是怎么构造的
+docker history d894122c7b25
+--------------------------
+```
+
+### 9.5 实战2：构建tomcat
+
+```
+#1.准备：镜像文件tomcat压缩包，jdk压缩包
+#2.编写dockerfile文件，官方默认命名Dockerfile,build会自动寻找这个文件，就不需要-f指定了
+FROM centos
+MAINTAINER hhp<1439801553@qq.com>
+
+COPY /home/test.java /usr/local/test.java
+ADD jdk-8u281-linux-x64.tar.gz /usr/local/
+ADD apache-tomcat-8.5.55.tar.gz /usr/local/
+
+RUN yum -y install vim
+
+ENV MYPATH /usr/local
+WORKDIR $MYPATH
+
+ENV JAVA_HOME /usr/local/jdk1.8.0_281
+ENV CLASSPATH /usr/local/java/jdk1.8.0_281/lib/
+ENV TOMCAT_HOME /usr/local/apache-tomcat-8.5.55
+ENV PATH $PATH:$JAVA_HOME/bin:$TOMCAT_HOME
+
+EXPOSE 8080
+
+CMD /usr/local/apache-tomcat-8.5.55/bin/startup.sh && tail -f /usr/local/apache-tomcat-8.5.55/logs/catalina.out
+----------------------------------------------
+#3.构建镜像,取名为mytomcat
+docker build -t mytomcat .
+#4.运行容器，容器名为hhptomcat，对应镜像为mytomcat
+docker run -it -p 9090:8080 --name hhptomcat -v /root/tomcat_rm/build/tomcat/test:/usr/local/apache-tomcat-8.5.55/webapps/test -v /root/tomcat_rm/build/tomcat/tomcatlogs/:/usr/local/apache-tomcat-8.5.55/logs --privileged=true mytomcat
+#5.
+```
+
+发布项目:在`/root/tomcat_rm/build/tomcat/test/WEB-INF/web.xml`下写入如下内容
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.4" 
+    xmlns="http://java.sun.com/xml/ns/j2ee" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee 
+        http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+</web-app>
+```
+
+在`/root/tomcat_rm/build/tomcat/test/index.jsp`下写入如下内容
+
+```
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>hello</title>
+</head>
+<body>
+Hello World!<br/>
+<%
+out.println("你的 IP 地址 " + request.getRemoteAddr());
+%>
+</body>
+</html>
+```
+
+访问：`192.168.0.108:9090/test`即可看到index.jsp页面
+
+### 9.6 发布镜像到仓库
+
+`DockerHub`
+
+```
+# 1.登录DockerHub
+docker login -u 18340824089
+# 2.改名，
+docker tag c751032256be docker.io/18340824089/hhp/tomcat:1.0
+# 2.提交镜像
+docker push 18340824089/hhp/tomcat:1.0
+```
+
+`阿里云`
+
+登录阿里云，找到`容器镜像服务`->`个人实例`->`创建命令空间`->`创建镜像仓库`
+
 ## 10. Docker网络
+
+```
+#获取ip地址
+ip addr
+```
+
+### 10.1
+
+## 11 综合应用
+
+### 11.1 Redis集群部署实战
+
+
+
+### 11.2 Springboot微服务打包Docker镜像
+
+```
+#1. 构建springboot项目
+#2. 打包应用
+#3. 编写dockerfile
+#4. 构建镜像
+#5. 发布运行
+```
 
