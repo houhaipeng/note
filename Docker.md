@@ -129,10 +129,6 @@ docker inspect 容器id
             "StartedAt": "2021-07-18T08:01:48.713502327Z",
             "FinishedAt": "0001-01-01T00:00:00Z"
         },
-        "Image": "sha256:300e315adb2f96afe5f0b2780b87f28ae95231fe3bdd1e16b9ba606307728f55",
-        "ResolvConfPath": "/var/lib/docker/containers/8db4685607912b43afdc15fc8688d64e248aba132d73c7731631e37064c30c16/resolv.conf",
-        "HostnamePath": "/var/lib/docker/containers/8db4685607912b43afdc15fc8688d64e248aba132d73c7731631e37064c30c16/hostname",
-        "HostsPath": "/var/lib/docker/containers/8db4685607912b43afdc15fc8688d64e248aba132d73c7731631e37064c30c16/hosts",
         "LogPath": "",
         "Name": "/vigilant_chandrasekhar",
         "RestartCount": 0,
@@ -141,86 +137,6 @@ docker inspect 容器id
         "ProcessLabel": "system_u:system_r:svirt_lxc_net_t:s0:c476,c817",
         "AppArmorProfile": "",
         "ExecIDs": null,
-        "HostConfig": {
-            "Binds": null,
-            "ContainerIDFile": "",
-            "LogConfig": {
-                "Type": "journald",
-                "Config": {}
-            },
-            "NetworkMode": "default",
-            "PortBindings": {},
-            "RestartPolicy": {
-                "Name": "no",
-                "MaximumRetryCount": 0
-            },
-            "AutoRemove": false,
-            "VolumeDriver": "",
-            "VolumesFrom": null,
-            "CapAdd": null,
-            "CapDrop": null,
-            "Dns": [],
-            "DnsOptions": [],
-            "DnsSearch": [],
-            "ExtraHosts": null,
-            "GroupAdd": null,
-            "IpcMode": "",
-            "Cgroup": "",
-            "Links": null,
-            "OomScoreAdj": 0,
-            "PidMode": "",
-            "Privileged": false,
-            "PublishAllPorts": false,
-            "ReadonlyRootfs": false,
-            "SecurityOpt": null,
-            "UTSMode": "",
-            "UsernsMode": "",
-            "ShmSize": 67108864,
-            "Runtime": "docker-runc",
-            "ConsoleSize": [
-                0,
-                0
-            ],
-            "Isolation": "",
-            "CpuShares": 0,
-            "Memory": 0,
-            "NanoCpus": 0,
-            "CgroupParent": "",
-            "BlkioWeight": 0,
-            "BlkioWeightDevice": null,
-            "BlkioDeviceReadBps": null,
-            "BlkioDeviceWriteBps": null,
-            "BlkioDeviceReadIOps": null,
-            "BlkioDeviceWriteIOps": null,
-            "CpuPeriod": 0,
-            "CpuQuota": 0,
-            "CpuRealtimePeriod": 0,
-            "CpuRealtimeRuntime": 0,
-            "CpusetCpus": "",
-            "CpusetMems": "",
-            "Devices": [],
-            "DiskQuota": 0,
-            "KernelMemory": 0,
-            "MemoryReservation": 0,
-            "MemorySwap": 0,
-            "MemorySwappiness": -1,
-            "OomKillDisable": false,
-            "PidsLimit": 0,
-            "Ulimits": null,
-            "CpuCount": 0,
-            "CpuPercent": 0,
-            "IOMaximumIOps": 0,
-            "IOMaximumBandwidth": 0
-        },
-        "GraphDriver": {
-            "Name": "overlay2",
-            "Data": {
-                "LowerDir": "/var/lib/docker/overlay2/4cfea1135f111e8dc556d7efd6707f423ec9a26216739e01d12ce9ca0ce1c7ea-init/diff:/var/lib/docker/overlay2/f6f87eb760fec031b779276aac476244b58dab8812c1a1564ca0586b3a399c16/diff",
-                "MergedDir": "/var/lib/docker/overlay2/4cfea1135f111e8dc556d7efd6707f423ec9a26216739e01d12ce9ca0ce1c7ea/merged",
-                "UpperDir": "/var/lib/docker/overlay2/4cfea1135f111e8dc556d7efd6707f423ec9a26216739e01d12ce9ca0ce1c7ea/diff",
-                "WorkDir": "/var/lib/docker/overlay2/4cfea1135f111e8dc556d7efd6707f423ec9a26216739e01d12ce9ca0ce1c7ea/work"
-            }
-        },
         "Mounts": [],
         "Config": {
             "Hostname": "8db468560791",
@@ -316,6 +232,23 @@ docker cp 容器id:容器内路径  目的主机路径
 #拷贝是一个手动过程，未来我们使用 -v卷的技术，可以实现，自动同步
 ```
 
+`network`:网络相关
+
+```
+docker network --option
+[root@localhost ~]# docker network --help
+Commands:
+  connect     Connect a container to a network
+  create      Create a network
+  disconnect  Disconnect a container from a network
+  inspect     Display detailed information on one or more networks
+  ls          List networks     #列举网络
+  prune       Remove all unused networks
+  rm          Remove one or more networks //移除网络
+```
+
+
+
 ### 3.4 命令小结
 
 ![docker命令](../../Pictures/Docker/docker命令.jpeg)
@@ -359,6 +292,38 @@ cp -r webapps.dist/* webapps //-r是递归拷贝
 ```
 
 ## 6. 部署ES
+
+```
+#--net somenetwork ? 网络配置
+# 下载启动
+docker run -d --name elasticsearch --net somenetwork -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" elasticsearch:7.6.2
+# 访问es
+[root@localhost ~]# curl localhost:9200
+{
+  "name" : "e27c88344d05",
+  "cluster_name" : "docker-cluster",
+  "cluster_uuid" : "h0ZVw37uRNqKDDP9GKLBmQ",
+  "version" : {
+    "number" : "7.6.2",
+    "build_flavor" : "default",
+    "build_type" : "docker",
+    "build_hash" : "ef48eb35cf30adf4db14086e8aabd07ef6fb113f",
+    "build_date" : "2020-03-26T06:34:37.794943Z",
+    "build_snapshot" : false,
+    "lucene_version" : "8.4.0",
+    "minimum_wire_compatibility_version" : "6.8.0",
+    "minimum_index_compatibility_version" : "6.0.0-beta1"
+  },
+  "tagline" : "You Know, for Search"
+}
+# 查看内存占用情况
+docker stats
+# 修改配置，增加内存限制
+# -e 环境配置修改
+docker run -d --name elasticsearch02 -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" -e ES_JAVA_OPTS="-Xms64m -Xmx521m" elasticsearch:7.6.2
+# 查看内存
+docker stats 10523c333a7f
+```
 
 ## 7. 镜像原理
 
@@ -709,15 +674,152 @@ docker push 18340824089/hhp/tomcat:1.0
 ip addr
 ```
 
-### 10.1
+### 10.1 Docker0
 
-## 11 综合应用
+```
+# 启动容器
+docker run -d -P --name tomcat01 tomcat
+# 查看容器的内部网络地址, ip addr
+[root@localhost ~]# docker exec -it tomcat01 ip addr
+6: eth0@if7: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+    link/ether 02:42:ac:11:00:02 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 172.17.0.2/16 scope global eth0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::42:acff:fe11:2/64 scope link 
+       valid_lft forever preferred_lft forever
+# 查看linux的网络,多了一个网络地址
+[root@localhost ~]# ip addr
+7: veth07a45c9@if6: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue master docker0 state UP group default 
+    link/ether 86:18:c6:ed:23:75 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet6 fe80::8418:c6ff:feed:2375/64 scope link 
+       valid_lft forever preferred_lft forever
+# 从上面可以看出linux和容器的网络在容器启动时是一对一对出现的
+# 查看linux(192.168.0.108)和容器内(172.17.0.2)的网络是否能ping通
+ping 172.17.0.2 //linux可以ping通容器内部
+```
 
-### 11.1 Redis集群部署实战
+我们每启动一个docker容器，docker就会给docker容器分配一个ip,只要安装了docker,就会有一个网卡docker0(路由器ip192.168.0.1)，桥接模式，使用的技术是`evth-pair`技术
+
+```
+# 再启动一个容器
+docker run -d -P --name tomcat02 tomcat
+# 
+[root@localhost ~]# docker exec -it tomcat02 ip addr
+8: eth0@if9: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+    link/ether 02:42:ac:11:00:03 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 172.17.0.3/16 scope global eth0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::42:acff:fe11:3/64 scope link 
+       valid_lft forever preferred_lft forever
+# 查看两个容器是否能ping通
+docker exec -it tomcat02 ping 172.17.0.2 //也能ping通
+# 但是通过容器名无法ping通
+docker exec -it tomcat02 ping tomcat01
+# 解决,--link 要连接的容器名.
+docker run -d -P --name tomcat03 --link tomcat02 tomcat
+docker exec -it tomcat02 ping tomcat03
+# 但是反向ping不通
+docker exec -it tomcat03 ping tomcat02
+# 列出docker的网络
+[root@localhost ~]# docker network ls
+NETWORK ID          NAME                DRIVER              SCOPE
+e470750a85c0        bridge              bridge              local
+1031d61ab17c        host                host                local
+091ca26b986c        none                null                local
+# tomcat03查看hosts配置
+[root@localhost ~]# docker exec -it tomcat03 cat /etc/hosts
+127.0.0.1       localhost
+::1     localhost ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+172.17.0.3      tomcat02 4c28076e1fbf
+172.17.0.4      a10e99711a94
+# --link就是在hosts配置中增加了tomcat02的映射，所以tomcat03 ping tomcat02能ping通
+# 现在已经不建议使用--link了
+
+```
+
+结论：容器和容器之间是可以互相ping通的
+
+`6: eth0@if7(容器1)`->`7: veth07a45c9@if6(linux)`->`9: vethcb0b891@if8(linux)`->`8: eth0@if9(容器2)`
+
+所有的容器在不指定网络`--net`的情况下,都是docker0路由的，
+
+```
+172.17.0.0/16 255*255个地址(172.17.x.x)
+172.17.0.0/8  255个地址(172.17.0.x)
+.....
+```
+
+docker0在linux中.
+
+![5e89c3d8d6f28773fabb1138b860d01f](../../Pictures/Docker/5e89c3d8d6f28773fabb1138b860d01f.jpeg)
+
+### 10.2 自定义网络
+
+**docker0的问题**：不支持容器名连接访问
+
+**网络模式**
+
+1. `bridge`:桥接模式 docker（默认,自己创建的也使用这个模式）
+2. `none`:不配置网络
+3. `host`:和宿主机共享网络
+4. `container`:容器内网络连通
+
+```
+# 我们直接启动的命令，默认是加了--net bridge这个参数的
+docker run -d -P --name tomcat01 tomcat
+# 创建自定义网络
+//gateway路由器地址，网络从这里出去
+//subnet 192.168.0.0/16,  192.168.0.2 - 192.168.255.255
+docker network create --driver bridge --subnet 192.168.0.0/16 --gateway 192.168.0.1 mynet
+# 查看创建的网络，mynet
+[root@localhost ~]# docker network ls
+NETWORK ID          NAME                DRIVER              SCOPE
+eb656a2075c7        bridge              bridge              local
+1031d61ab17c        host                host                local
+f943fdbfea5a        mynet               bridge              local
+091ca26b986c        none                null                local
+#
+docker network inspect mynet
+# 使用自己的网络启动容器
+docker run -d -P --name tomcat-net-01 --net mynet tomcat
+docker run -d -P --name tomcat-net-02 --net mynet tomcat
+# 此时用下面命令查看，有了上述两个容器的ip
+docker network inspect mynet
+# 自定义网络,可以用容器名ping通两个容器，不用再使用--link了
+docker exec -it tomcat-net-01 ping tomcat-net-02
+docker exec -it tomcat-net-02 ping tomcat-net-01
+```
 
 
 
-### 11.2 Springboot微服务打包Docker镜像
+## 11 可视化
+
+### 11.1 portainer
+
+Docker图形化界面管理工具!提供一个后台面板供我们操作
+
+```
+
+```
+
+### 11.2 rancher
+
+## 12 综合应用
+
+### 12.1 Redis集群部署实战
+
+```
+#
+docker network create redis --subnet 
+```
+
+
+
+### 12.2 Springboot微服务打包Docker镜像
 
 ```
 #1. 构建springboot项目
