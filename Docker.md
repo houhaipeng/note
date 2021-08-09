@@ -792,6 +792,47 @@ docker exec -it tomcat-net-01 ping tomcat-net-02
 docker exec -it tomcat-net-02 ping tomcat-net-01
 ```
 
+如何使docker0的容器和自定义网络mynet的容器连通？
+
+```
+#
+docker run -d -P --name tomcat01 tomcat    //docker0
+docker run -d -P --name tomcat-net-01 --net mynet tomcat //mynet
+# 将tomcat01连到了mynet网络下,即一个容器2个ip
+docker network connect mynet tomcat01
+
+[root@localhost ~]# docker network inspect mynet
+[
+    {
+        "Name": "mynet",
+        "Id": "f943fdbfea5a26664c65ede95a7741f5f8b7e088a192491c43d6daadf1d27ea0",
+        .....
+        "Containers": {
+            "087fb832b2825811051739493268d364b994f5b9f914856a5d0ff3109cf27f07": {
+                "Name": "tomcat01",
+                "EndpointID": "3c7620aa8b1ce0ccd642762b4e6966d50256267f8c3dcf217ccf3bdf20f05d6a",
+                "MacAddress": "02:42:c0:a8:00:03",
+                "IPv4Address": "192.168.0.3/16",
+                "IPv6Address": ""
+            },
+            "b8a8895dda9d35402035e62c8d4cd35de13ba97525d7ad6427e63cffe1864a4c": {
+                "Name": "tomcat-net-01",
+                "EndpointID": "cc67f7686395c313d30b6503baec8cb31fba9eced96dfe33bb6cbe78defaf98a",
+                "MacAddress": "02:42:c0:a8:00:02",
+                "IPv4Address": "192.168.0.2/16",
+                "IPv6Address": ""
+            }
+        },
+        "Options": {},
+        "Labels": {}
+    }
+]
+# 测试，结果能ping通
+docker exec -it tomcat01 ping tomcat-net-01
+# 但是tomcat-net-01 ping不通 tomcat01
+docker exec -it tomcat-net-01 ping tomcat01
+```
+
 
 
 ## 11 可视化
