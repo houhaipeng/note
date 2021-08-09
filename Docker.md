@@ -133,11 +133,6 @@ docker inspect 容器id
         "Name": "/vigilant_chandrasekhar",
         "RestartCount": 0,
         "Driver": "overlay2",
-        "MountLabel": "system_u:object_r:svirt_sandbox_file_t:s0:c476,c817",
-        "ProcessLabel": "system_u:system_r:svirt_lxc_net_t:s0:c476,c817",
-        "AppArmorProfile": "",
-        "ExecIDs": null,
-        "Mounts": [],
         "Config": {
             "Hostname": "8db468560791",
             "Domainname": "",
@@ -247,8 +242,6 @@ Commands:
   rm          Remove one or more networks //移除网络
 ```
 
-
-
 ### 3.4 命令小结
 
 ![docker命令](../../Pictures/Docker/docker命令.jpeg)
@@ -268,7 +261,6 @@ docker ps
 curl localhost:3344
 //进入容器
 docker exec -it nginx01 /bin/bash
-
 
 # 问题：我们每次改动ngnix配置文件，都需要进入容器内部，十分麻烦，如果可以在容器外部提供一个映射路径，达到在容器外部修改文件，容器内部就可以自动修改--数据卷
 ```
@@ -495,6 +487,12 @@ docker run -d -P --name nginx02 -v juming-nginx:/etc/nginx:rw nginx
 
 ## 9. DockerFile
 
+dockerfile文件目录
+
+`192.168.21.212`:`/home/docker_hhp`
+
+`192.168.0.108`:
+
 ### 9.1 概念
 
 ```
@@ -608,7 +606,7 @@ ENV PATH $PATH:$JAVA_HOME/bin:$TOMCAT_HOME
 EXPOSE 8080
 
 CMD /usr/local/apache-tomcat-8.5.55/bin/startup.sh && tail -f /usr/local/apache-tomcat-8.5.55/logs/catalina.out
-----------------------------------------------
+---------------------------------以上是dockerfile内容----------------------------------
 #3.构建镜像,取名为mytomcat
 docker build -t mytomcat .
 #4.运行容器，容器名为hhptomcat，对应镜像为mytomcat
