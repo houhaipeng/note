@@ -160,7 +160,17 @@ InnoDB也会对这个“间隙”加锁，这种锁机制就是所谓的间隙�
 
 ## 8. 范式
 
+## 9. Group By
 
+```
+       select 分组函数，列(要求出现在group by的后面)
+       from 表
+       【where】 筛选条件
+       group by 分组列表
+       【order by 子句】
+```
+
+**注意**：select 后面如果是表的某个字段，那么这个字段必须与group by后面的字段相同
 
 
 
